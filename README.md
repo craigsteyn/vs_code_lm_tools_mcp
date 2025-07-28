@@ -100,50 +100,48 @@ npm test
 npm run package
 ```
 
-## API Reference
+## MCP Client Usage
 
-### MCP Request Examples
+To connect to this MCP server from an MCP client, add the following configuration to your `mcp.json` file:
 
-**Initialize the server:**
+### Streamable HTTP Transport (Recommended)
+
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "initialize",
-  "params": {
-    "protocolVersion": "2024-11-05",
-    "capabilities": {},
-    "clientInfo": {
-      "name": "your-client",
-      "version": "1.0.0"
+  "servers": {
+    "vscode": {
+      "type": "streamable-http",
+      "url": "http://localhost:22333"
     }
   }
 }
 ```
 
-**List available tools:**
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 2,
-  "method": "tools/list"
-}
-```
+### Standard HTTP Transport
 
-**Call a tool:**
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 3,
-  "method": "tools/call",
-  "params": {
-    "name": "tool-name",
-    "arguments": {
-      "param1": "value1"
+  "servers": {
+    "vscode": {
+      "type": "http",
+      "url": "http://localhost:22333"
     }
   }
 }
 ```
+
+### Prerequisites
+
+1. Ensure this VS Code extension is installed and active
+2. The MCP server will automatically start on port 22333
+3. Your MCP client should be configured to connect to the above URL
+
+### Available Operations
+
+Once connected, your MCP client will have access to:
+- **Tool Discovery**: Automatically list all VS Code LM tools
+- **Tool Invocation**: Execute VS Code LM tools (with context limitations)
+- **Schema Information**: Access input schemas for each tool
 
 ## Dependencies
 
