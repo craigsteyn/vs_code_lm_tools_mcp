@@ -1,74 +1,162 @@
-# Hello World Extension
+# VS Code LM Tools MCP Server Extension
 
-A simple VS Code extension that demonstrates basic extension functionality by showing a "Hello World" message.
+A VS Code extension that creates an MCP (Model Context Protocol) server to expose VS Code Language Model tools over HTTP, enabling external applications to access and utilize VS Code's built-in LM tools.
 
 ## Features
 
-This extension provides a simple command that displays a "Hello World" message to the user:
+This extension provides the following functionality:
 
-- **Hello World Command**: Displays an information message when executed
-- Accessible through the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+- **MCP Server**: Creates a Model Context Protocol server that runs on `http://localhost:22333`
+- **VS Code LM Tools Integration**: Automatically discovers and exposes all registered VS Code Language Model tools
+- **HTTP API**: Provides a REST-like interface for external applications to interact with VS Code LM tools
+- **Tool Discovery**: Lists all available VS Code LM tools with their descriptions and input schemas
+- **Tool Invocation**: Attempts to invoke VS Code LM tools (with limitations outside chat context)
 
 ## How to Use
 
-1. Open the Command Palette (`Ctrl+Shift+P` on Windows/Linux, `Cmd+Shift+P` on macOS)
-2. Type "Hello World" and select the command
-3. A message will appear saying "Hello World from Hello World Extension!"
+### Starting the MCP Server
+
+1. Install and activate the extension
+2. The MCP server will automatically start on port 22333 when the extension activates
+3. You'll see a notification: "MCP Server started on port 22333"
+
+### Accessing the MCP Server
+
+The server exposes the following MCP protocol endpoints:
+
+- **Initialize**: `POST http://localhost:22333` with `{"method": "initialize", ...}`
+- **List Tools**: `POST http://localhost:22333` with `{"method": "tools/list", ...}`
+- **Call Tool**: `POST http://localhost:22333` with `{"method": "tools/call", ...}`
+- **Ping**: `POST http://localhost:22333` with `{"method": "ping", ...}`
+
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- VS Code version 1.102.0 or higher
+- Node.js and npm for development
+- Network access to localhost port 22333
+
+## Technical Details
+
+### MCP Protocol Implementation
+
+The extension implements a subset of the Model Context Protocol (MCP) v2024-11-05:
+
+- **Server Info**: `vscode-lm-tools-mcp-server` v1.0.0
+- **Capabilities**: Supports tools discovery and invocation
+- **Transport**: HTTP with JSON-RPC 2.0 format
+- **CORS**: Enabled for cross-origin requests
+
+### VS Code LM Tools Integration
+
+- Automatically discovers all registered [`vscode.lm.tools`](src/extension.ts:194)
+- Normalizes tool input schemas to ensure MCP compatibility
+- Handles tool invocation with proper error handling
+- Provides detailed tool information when direct invocation fails
+
+### Limitations
+
+- Tool invocation requires a `toolInvocationToken` which is only available in chat contexts
+- Outside of chat contexts, the server returns tool metadata instead of execution results
+- Some VS Code LM tools may not be accessible depending on the current workspace and context
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+This extension does not currently contribute any VS Code settings.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Direct tool invocation may fail outside of VS Code chat contexts due to `toolInvocationToken` requirements
+- Tool availability depends on other installed extensions and workspace configuration
+- Server runs on a fixed port (22333) which may conflict with other applications
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
+Initial release featuring:
+- MCP server implementation with HTTP transport
+- VS Code LM tools discovery and exposure
+- Basic tool invocation with fallback to metadata
 
-Initial release of ...
+## Development
 
-### 1.0.1
+### Building the Extension
 
-Fixed issue #.
+```bash
+npm install
+npm run compile
+```
 
-### 1.1.0
+### Running Tests
 
-Added features X, Y, and Z.
+```bash
+npm test
+```
 
----
+### Packaging
 
-## Following extension guidelines
+```bash
+npm run package
+```
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+## API Reference
+
+### MCP Request Examples
+
+**Initialize the server:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "your-client",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+**List available tools:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list"
+}
+```
+
+**Call a tool:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "tool-name",
+    "arguments": {
+      "param1": "value1"
+    }
+  }
+}
+```
+
+## Dependencies
+
+- [`@modelcontextprotocol/sdk`](package.json:52): Core MCP SDK for server implementation
+- VS Code API: For accessing Language Model tools and extension functionality
+
+## Contributing
+
+This extension follows VS Code extension development best practices:
 
 * [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+* [VS Code API Documentation](https://code.visualstudio.com/api)
 
-## Working with Markdown
+## License
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+See the [LICENSE](LICENSE) file for details.

@@ -1,7 +1,7 @@
 {
-  "name": "hello-world-extension",
-  "displayName": "Hello World Extension",
-  "description": "A simple VS Code extension that shows Hello World message",
+  "name": "vscode-lm-tools-mcp-server",
+  "displayName": "VS Code LM Tools MCP Server",
+  "description": "MCP server that exposes VS Code Language Model tools over HTTP",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
@@ -13,14 +13,7 @@
     "*"
   ],
   "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "hello-world-extension.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
+  "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
